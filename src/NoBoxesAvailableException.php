@@ -7,7 +7,7 @@
  */
 declare(strict_types=1);
 
-namespace SaminYaser\BoxPacker;
+namespace SaminYaser\BoxPackerLite;
 
 use RuntimeException;
 

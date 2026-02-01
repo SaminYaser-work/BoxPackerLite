@@ -6,7 +6,7 @@
  */
 declare(strict_types=1);
 
-namespace SaminYaser\BoxPacker;
+namespace SaminYaser\BoxPackerLite;
 
 /**
  * An item to be packed where additional constraints need to be considered. Only implement this interface if you actually

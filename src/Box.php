@@ -6,7 +6,7 @@
  */
 declare(strict_types=1);
 
-namespace SaminYaser\BoxPacker;
+namespace SaminYaser\BoxPackerLite;
 
 /**
  * A "box" (or envelope?) to pack items into.

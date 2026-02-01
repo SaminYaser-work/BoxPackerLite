@@ -6,7 +6,7 @@
  */
 declare(strict_types=1);
 
-namespace SaminYaser\BoxPacker;
+namespace SaminYaser\BoxPackerLite;
 
 /**
  * A callback to be used with usort(), implementing logic to determine which Item is a higher priority for packing.

@@ -1,4 +1,4 @@
-BoxPacker
+BoxPackerLite
 =========
 
 An implementation of the "4D" bin packing/knapsack problem i.e. given a list of items, how many boxes do you need to fit
@@ -9,4 +9,4 @@ even just want to know the right number of labels to print.
 
 License
 -------
-BoxPacker is MIT-licensed. 
+BoxPackerLite is MIT-licensed. 

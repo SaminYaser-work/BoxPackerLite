@@ -1,5 +1,5 @@
 {
-    "name": "saminyaser/boxpacker",
+    "name": "saminyaser/boxpackerlite",
     "description": "An implementation of the 3D (actually 4D) bin packing/knapsack problem (aka creating parcels by putting items into boxes)",
     "keywords": [
         "packing",
@@ -38,7 +38,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SaminYaser\\BoxPacker\\": "src/"
+            "SaminYaser\\BoxPackerLite\\": "src/"
         }
     }
 }

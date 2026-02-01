@@ -7,7 +7,7 @@
  */
 declare(strict_types=1);
 
-namespace SaminYaser\BoxPacker;
+namespace SaminYaser\BoxPackerLite;
 
 /**
  * Exception used when an item is too large to pack into any box.

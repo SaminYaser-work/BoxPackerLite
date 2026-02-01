@@ -47,7 +47,9 @@ class OrientatedItemSorter {
 
 	private PackedItemList $prevPackedItemList;
 
-	public function __construct( OrientatedItemFactory $factory, bool $singlePassMode, int $widthLeft, int $lengthLeft, int $depthLeft, ItemList $nextItems, int $rowLength, int $x, int $y, int $z, PackedItemList $prevPackedItemList ) {
+	private Logger $logger;
+
+	public function __construct( OrientatedItemFactory $factory, bool $singlePassMode, int $widthLeft, int $lengthLeft, int $depthLeft, ItemList $nextItems, int $rowLength, int $x, int $y, int $z, PackedItemList $prevPackedItemList, Logger $logger ) {
 		$this->orientatedItemFactory = $factory;
 		$this->singlePassMode        = $singlePassMode;
 		$this->widthLeft             = $widthLeft;
@@ -59,6 +61,7 @@ class OrientatedItemSorter {
 		$this->y                     = $y;
 		$this->z                     = $z;
 		$this->prevPackedItemList    = $prevPackedItemList;
+		$this->logger                = $logger;
 	}
 
 	public function __invoke( OrientatedItem $a, OrientatedItem $b ): int {
@@ -176,6 +179,7 @@ class OrientatedItemSorter {
 			$itemsToPack->removePackedItems( $nextRowsPacked->getItems() );
 
 			$packedCount = $this->nextItems->count() - $itemsToPack->count();
+			$this->logger->debug( 'Lookahead with orientation', [ 'packedCount' => $packedCount, 'orientatedItem' => $prevItem ] );
 
 			static::$lookaheadCache[ $cacheKey ] = $packedCount;
 		}

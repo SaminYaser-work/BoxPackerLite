@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace SaminYaser\BoxPackerLite;
 
 use JsonSerializable;
-use ReturnTypeWillChange;
 
 use function atan;
 use function min;
@@ -113,9 +112,7 @@ class OrientatedItem implements JsonSerializable {
 		return $this->dimensionsAsArray === $itemDimensions;
 	}
 
-	#[ReturnTypeWillChange]
 	public function jsonSerialize() {
-		/* : mixed */
 		return array(
 			'item'   => $this->item,
 			'width'  => $this->width,

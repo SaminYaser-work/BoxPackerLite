@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace SaminYaser\BoxPackerLite;
 
 use JsonSerializable;
-use ReturnTypeWillChange;
 
 use function array_merge;
 use function is_array;
@@ -94,9 +93,7 @@ class PackedItem implements JsonSerializable {
 		return new OrientatedItem( $this->item, $this->width, $this->length, $this->depth );
 	}
 
-	#[ReturnTypeWillChange]
 	public function jsonSerialize() {
-		/* : mixed */
 		$userValues = array();
 
 		if ( $this->item instanceof JsonSerializable ) {

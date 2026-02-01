@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace SaminYaser\BoxPackerLite;
 
 use JsonSerializable;
-use ReturnTypeWillChange;
 
 use function iterator_to_array;
 use function max;
@@ -177,9 +176,7 @@ class PackedBox implements JsonSerializable {
 		$this->volumeUtilisation = round( $this->getUsedVolume() / ( $this->getInnerVolume() ?: 1 ) * 100, 1 );
 	}
 
-	#[ReturnTypeWillChange]
 	public function jsonSerialize() {
-		/* : mixed */
 		$userValues = array();
 
 		if ( $this->box instanceof JsonSerializable ) {

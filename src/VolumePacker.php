@@ -19,7 +19,6 @@ use function usort;
  */
 class VolumePacker {
 
-
 	/**
 	 * Box to pack items into.
 	 */
@@ -29,6 +28,11 @@ class VolumePacker {
 	 * List of items to be packed.
 	 */
 	protected ItemList $items;
+
+	/**
+	 * The logger instance.
+	 */
+	protected Logger $logger;
 
 	/**
 	 * Whether the packer is in single-pass mode.
@@ -50,9 +54,20 @@ class VolumePacker {
 		$this->box   = $box;
 		$this->items = clone $items;
 
+		$this->logger = new Logger();
+
 		$this->hasConstrainedItems = $items->hasConstrainedItems();
 
 		$this->layerPacker = new LayerPacker( $this->box );
+		$this->layerPacker->setLogger( $this->logger );
+	}
+
+	/**
+	 * Sets a logger.
+	 */
+	public function setLogger( Logger $logger ): void {
+		$this->logger = $logger;
+		$this->layerPacker->setLogger( $logger );
 	}
 
 	public function packAcrossWidthOnly(): void {
@@ -81,6 +96,8 @@ class VolumePacker {
 	 * @return PackedBox packed box
 	 */
 	public function pack(): PackedBox {
+		$this->logger->debug( "[EVALUATING BOX] {$this->box->getReference()}", [ 'box' => $this->box ] );
+
 		$rotationsToTest = array( false );
 		if ( ! $this->packAcrossWidthOnly ) {
 			$rotationsToTest[] = true;
@@ -115,6 +132,7 @@ class VolumePacker {
 	 * @return PackedBox packed box
 	 */
 	private function packRotation( int $boxWidth, int $boxLength ): PackedBox {
+		$this->logger->debug( "[EVALUATING ROTATION] {$this->box->getReference()}", [ 'width' => $boxWidth, 'length' => $boxLength ] );
 		$this->layerPacker->setBoxIsRotated( $this->box->getInnerWidth() !== $boxWidth );
 
 		/** @var PackedLayer[] $layers */

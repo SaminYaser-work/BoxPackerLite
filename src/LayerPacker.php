@@ -20,8 +20,9 @@ use function sort;
  */
 class LayerPacker {
 
-
 	private Box $box;
+
+	private Logger $logger;
 
 	private bool $singlePassMode = false;
 
@@ -35,6 +36,16 @@ class LayerPacker {
 		$this->box = $box;
 
 		$this->orientatedItemFactory = new OrientatedItemFactory( $this->box );
+		$this->logger                = new Logger();
+		$this->orientatedItemFactory->setLogger( $this->logger );
+	}
+
+	/**
+	 * Sets a logger.
+	 */
+	public function setLogger( Logger $logger ): void {
+		$this->logger = $logger;
+		$this->orientatedItemFactory->setLogger( $logger );
 	}
 
 	public function setSinglePassMode( bool $singlePassMode ): void {
@@ -105,6 +116,7 @@ class LayerPacker {
 			}
 
 			if ( ! $this->beStrictAboutItemOrdering && $items->count() > 0 ) { // skip for now, move on to the next item
+				$this->logger->debug( "doesn't fit, skipping for now" );
 				$skippedItems[] = $itemToPack;
 				// abandon here if next item is the same, no point trying to keep going. Last time is not skipped, need that to trigger appropriate reset logic
 				while ( $items->count() > 1 && self::isSameDimensions( $itemToPack, $items->top() ) ) {
@@ -114,6 +126,7 @@ class LayerPacker {
 			}
 
 			if ( $x > $startX ) {
+				$this->logger->debug( 'No more fit in width wise, resetting for new row' );
 				$y             += $rowLength;
 				$x              = $startX;
 				$rowLength      = 0;
@@ -124,6 +137,7 @@ class LayerPacker {
 				continue;
 			}
 
+			$this->logger->debug( 'no items fit, so starting next vertical layer' );
 			$skippedItems[] = $itemToPack;
 
 			$items = ItemList::fromArray( array_merge( $skippedItems, iterator_to_array( $items ) ), true );

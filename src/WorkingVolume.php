@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace SaminYaser\BoxPackerLite;
 
 use JsonSerializable;
-use ReturnTypeWillChange;
 
 /**
  * @internal
@@ -72,9 +71,7 @@ class WorkingVolume implements Box, JsonSerializable {
 		return $this->maxWeight;
 	}
 
-	#[ReturnTypeWillChange]
 	public function jsonSerialize() {
-		/* : mixed */
 		return array(
 			'reference' => $this->getReference(),
 			'width'     => $this->width,

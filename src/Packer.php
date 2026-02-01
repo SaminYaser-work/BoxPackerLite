@@ -20,6 +20,7 @@ use const PHP_INT_MAX;
  */
 class Packer {
 
+	private Logger $logger;
 
 	protected int $maxBoxesToBalanceWeight = 12;
 
@@ -41,6 +42,11 @@ class Packer {
 		$this->boxes                  = new BoxList();
 		$this->boxQuantitiesAvailable = new SplObjectStorage();
 		$this->packedBoxSorter        = new DefaultPackedBoxSorter();
+		$this->logger                 = new Logger();
+	}
+
+	public function setLogger( Logger $logger ): void {
+		$this->logger = $logger;
 	}
 
 	/**
@@ -48,6 +54,7 @@ class Packer {
 	 */
 	public function addItem( Item $item, int $qty = 1 ): void {
 		$this->items->insert( $item, $qty );
+		$this->logger->info( "added {$qty} x {$item->getDescription()}", [ 'item' => $item ] );
 	}
 
 	/**
@@ -72,6 +79,7 @@ class Packer {
 	public function addBox( Box $box ): void {
 		$this->boxes->insert( $box );
 		$this->setBoxQuantity( $box, $box instanceof LimitedSupplyBox ? $box->getQuantityAvailable() : PHP_INT_MAX );
+		$this->logger->info( "added box {$box->getReference()}", [ 'box' => $box ] );
 	}
 
 	/**
@@ -117,13 +125,18 @@ class Packer {
 	 * Pack items into boxes using built-in heuristics for the best solution.
 	 */
 	public function pack(): PackedBoxList {
+		$this->logger->info( '[PACKING STARTED]' );
+
 		$packedBoxes = $this->doBasicPacking();
 
 		// If we have multiple boxes, try and optimise/even-out weight distribution
 		if ( ! $this->beStrictAboutItemOrdering && $packedBoxes->count() > 1 && $packedBoxes->count() <= $this->maxBoxesToBalanceWeight ) {
 			$redistributor = new WeightRedistributor( $this->boxes, $this->packedBoxSorter, $this->boxQuantitiesAvailable );
-			$packedBoxes   = $redistributor->redistributeWeight( $packedBoxes );
+			$redistributor->setLogger( $this->logger );
+			$packedBoxes = $redistributor->redistributeWeight( $packedBoxes );
 		}
+
+		$this->logger->info( "[PACKING COMPLETED], {$packedBoxes->count()} boxes" );
 
 		return $packedBoxes;
 	}
@@ -141,6 +154,7 @@ class Packer {
 			// Loop through boxes starting with smallest, see what happens
 			foreach ( $this->getBoxList( $enforceSingleBox ) as $box ) {
 				$volumePacker = new VolumePacker( $box, $this->items );
+				$volumePacker->setLogger( $this->logger );
 				$volumePacker->beStrictAboutItemOrdering( $this->beStrictAboutItemOrdering );
 				$packedBox = $volumePacker->pack();
 				if ( $packedBox->getItems()->count() ) {
@@ -148,6 +162,7 @@ class Packer {
 
 					// Have we found a single box that contains everything?
 					if ( $packedBox->getItems()->count() === $this->items->count() ) {
+						$this->logger->debug( "Single box found for remaining {$this->items->count()} items" );
 						break;
 					}
 				}
@@ -165,6 +180,7 @@ class Packer {
 			} elseif ( ! $enforceSingleBox ) {
 				throw new NoBoxesAvailableException( "No boxes could be found for item '{$this->items->top()->getDescription()}'", $this->items->top() );
 			} else {
+				$this->logger->info( "{$this->items->count()} unpackable items found" );
 				break;
 			}
 		}
@@ -180,10 +196,13 @@ class Packer {
 	 * @return iterable<Box>
 	 */
 	protected function getBoxList( bool $enforceSingleBox = false ): iterable {
+		$this->logger->info( 'Determining box search pattern', [ 'enforceSingleBox' => $enforceSingleBox ] );
+
 		$itemVolume = 0;
 		foreach ( $this->items as $item ) {
 			$itemVolume += $item->getWidth() * $item->getLength() * $item->getDepth();
 		}
+		$this->logger->debug( 'Item volume', [ 'itemVolume' => $itemVolume ] );
 
 		$preferredBoxes = array();
 		$otherBoxes     = array();
@@ -196,6 +215,7 @@ class Packer {
 				}
 			}
 		}
+		$this->logger->info( 'Box search pattern complete', [ 'preferredBoxCount' => count( $preferredBoxes ), 'otherBoxCount' => count( $otherBoxes ) ] );
 
 		return array( ...$preferredBoxes, ...$otherBoxes );
 	}

@@ -26,6 +26,7 @@ use function assert;
  */
 class WeightRedistributor {
 
+	private Logger $logger;
 
 	private BoxList $boxes;
 
@@ -40,6 +41,11 @@ class WeightRedistributor {
 		$this->boxes                  = $boxList;
 		$this->packedBoxSorter        = $packedBoxSorter;
 		$this->boxQuantitiesAvailable = $boxQuantitiesAvailable;
+		$this->logger                 = new Logger();
+	}
+
+	public function setLogger( Logger $logger ): void {
+		$this->logger = $logger;
 	}
 
 	/**
@@ -47,6 +53,7 @@ class WeightRedistributor {
 	 */
 	public function redistributeWeight( PackedBoxList $originalBoxes ): PackedBoxList {
 		$targetWeight = $originalBoxes->getMeanItemWeight();
+		$this->logger->debug( "repacking for weight distribution, weight variance {$originalBoxes->getWeightVariance()}, target weight {$targetWeight}" );
 
 		$boxes = iterator_to_array( $originalBoxes );
 
@@ -144,6 +151,7 @@ class WeightRedistributor {
 	 */
 	private function doVolumeRepack( iterable $items, Box $currentBox ): PackedBoxList {
 		$packer = new Packer();
+		$packer->setLogger( $this->logger );
 		$packer->setBoxes( $this->boxes ); // use the full set of boxes to allow smaller/larger for full efficiency
 		foreach ( $this->boxes as $box ) {
 			$packer->setBoxQuantity( $box, $this->boxQuantitiesAvailable[ $box ] );

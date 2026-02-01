@@ -19,6 +19,7 @@ use function usort;
  */
 class OrientatedItemFactory {
 
+	protected Logger $logger;
 
 	protected Box $box;
 
@@ -36,6 +37,11 @@ class OrientatedItemFactory {
 
 	public function __construct( Box $box ) {
 		$this->box = $box;
+		$this->logger = new Logger();
+	}
+
+	public function setLogger( Logger $logger ): void {
+		$this->logger = $logger;
 	}
 
 	public function setSinglePassMode( bool $singlePassMode ): void {
@@ -63,6 +69,22 @@ class OrientatedItemFactory {
 		PackedItemList $prevPackedItemList,
 		bool $considerStability
 	): ?OrientatedItem {
+		$this->logger->debug(
+			"evaluating item {$item->getDescription()} for fit",
+			[
+				'item'     => $item,
+				'space'    => [
+					'widthLeft'  => $widthLeft,
+					'lengthLeft' => $lengthLeft,
+					'depthLeft'  => $depthLeft,
+				],
+				'position' => [
+					'x' => $x,
+					'y' => $y,
+					'z' => $z,
+				],
+			]
+		);
 		$possibleOrientations = $this->getPossibleOrientations( $item, $prevItem, $widthLeft, $lengthLeft, $depthLeft, $x, $y, $z, $prevPackedItemList );
 		$usableOrientations   = $considerStability ? $this->getUsableOrientations( $item, $possibleOrientations ) : $possibleOrientations;
 
@@ -70,8 +92,10 @@ class OrientatedItemFactory {
 			return null;
 		}
 
-		$sorter = new OrientatedItemSorter( $this, $this->singlePassMode, $widthLeft, $lengthLeft, $depthLeft, $nextItems, $rowLength, $x, $y, $z, $prevPackedItemList );
+		$sorter = new OrientatedItemSorter( $this, $this->singlePassMode, $widthLeft, $lengthLeft, $depthLeft, $nextItems, $rowLength, $x, $y, $z, $prevPackedItemList, $this->logger );
 		usort( $usableOrientations, $sorter );
+
+		$this->logger->debug( 'Selected best fit orientation', [ 'orientation' => $usableOrientations[0] ] );
 
 		return $usableOrientations[0];
 	}

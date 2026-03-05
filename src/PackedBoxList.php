@@ -144,7 +144,7 @@ class PackedBoxList implements IteratorAggregate, Countable, JsonSerializable {
 		return round( $itemVolume / $boxVolume * 100, 1 );
 	}
 
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return $this->list;
 	}
 }

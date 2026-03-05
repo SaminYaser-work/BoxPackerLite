@@ -176,7 +176,7 @@ class PackedBox implements JsonSerializable {
 		$this->volumeUtilisation = round( $this->getUsedVolume() / ( $this->getInnerVolume() ?: 1 ) * 100, 1 );
 	}
 
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		$userValues = array();
 
 		if ( $this->box instanceof JsonSerializable ) {

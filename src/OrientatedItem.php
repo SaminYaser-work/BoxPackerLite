@@ -112,7 +112,7 @@ class OrientatedItem implements JsonSerializable {
 		return $this->dimensionsAsArray === $itemDimensions;
 	}
 
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return array(
 			'item'   => $this->item,
 			'width'  => $this->width,

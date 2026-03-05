@@ -71,7 +71,7 @@ class WorkingVolume implements Box, JsonSerializable {
 		return $this->maxWeight;
 	}
 
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return array(
 			'reference' => $this->getReference(),
 			'width'     => $this->width,

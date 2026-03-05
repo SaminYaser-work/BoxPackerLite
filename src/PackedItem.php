@@ -93,7 +93,7 @@ class PackedItem implements JsonSerializable {
 		return new OrientatedItem( $this->item, $this->width, $this->length, $this->depth );
 	}
 
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		$userValues = array();
 
 		if ( $this->item instanceof JsonSerializable ) {

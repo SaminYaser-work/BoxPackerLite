@@ -13,8 +13,8 @@ Requirements
 - **PHP 7.4 or higher**
 - ext-json
 
-The library is designed to work seamlessly in **WordPress environments** (5.6+) and includes built-in WordPress detection
-and logging integration through `error_log()`.
+The library is framework-agnostic and silent by default. Applications can provide their own logger implementation when
+packing diagnostics are needed.
 
 Installation
 ------------
@@ -30,9 +30,17 @@ Features
 - Weight redistribution across multiple boxes
 - Layer stability calculation
 - Custom sorting strategies for boxes and items
-- WordPress-compatible logging
+- Optional application-provided logging
 - Zero external dependencies (except ext-json)
 - PHP 7.4+ typed properties and modern syntax
+
+Logging
+-------
+Implement `LoggerInterface` and pass the logger to `Packer`. When omitted, the built-in `NullLogger` discards diagnostics.
+
+```php
+$packer = new Packer($logger);
+```
 
 Credit
 ------

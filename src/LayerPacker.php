@@ -22,7 +22,7 @@ class LayerPacker {
 
 	private Box $box;
 
-	private Logger $logger;
+	private LoggerInterface $logger;
 
 	private bool $singlePassMode = false;
 
@@ -32,20 +32,11 @@ class LayerPacker {
 
 	private bool $isBoxRotated = false;
 
-	public function __construct( Box $box ) {
+	public function __construct( Box $box, ?LoggerInterface $logger = null ) {
 		$this->box = $box;
 
-		$this->orientatedItemFactory = new OrientatedItemFactory( $this->box );
-		$this->logger                = new Logger();
-		$this->orientatedItemFactory->setLogger( $this->logger );
-	}
-
-	/**
-	 * Sets a logger.
-	 */
-	public function setLogger( Logger $logger ): void {
-		$this->logger = $logger;
-		$this->orientatedItemFactory->setLogger( $logger );
+		$this->logger                = $logger ?? new NullLogger();
+		$this->orientatedItemFactory = new OrientatedItemFactory( $this->box, $this->logger );
 	}
 
 	public function setSinglePassMode( bool $singlePassMode ): void {

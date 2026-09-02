@@ -32,7 +32,7 @@ class VolumePacker {
 	/**
 	 * The logger instance.
 	 */
-	protected Logger $logger;
+	protected LoggerInterface $logger;
 
 	/**
 	 * Whether the packer is in single-pass mode.
@@ -50,24 +50,15 @@ class VolumePacker {
 
 	private bool $hasConstrainedItems;
 
-	public function __construct( Box $box, ItemList $items ) {
+	public function __construct( Box $box, ItemList $items, ?LoggerInterface $logger = null ) {
 		$this->box   = $box;
 		$this->items = clone $items;
 
-		$this->logger = new Logger();
+		$this->logger = $logger ?? new NullLogger();
 
 		$this->hasConstrainedItems = $items->hasConstrainedItems();
 
-		$this->layerPacker = new LayerPacker( $this->box );
-		$this->layerPacker->setLogger( $this->logger );
-	}
-
-	/**
-	 * Sets a logger.
-	 */
-	public function setLogger( Logger $logger ): void {
-		$this->logger = $logger;
-		$this->layerPacker->setLogger( $logger );
+		$this->layerPacker = new LayerPacker( $this->box, $this->logger );
 	}
 
 	public function packAcrossWidthOnly(): void {

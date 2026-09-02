@@ -19,7 +19,7 @@ use function usort;
  */
 class OrientatedItemFactory {
 
-	protected Logger $logger;
+	protected LoggerInterface $logger;
 
 	protected Box $box;
 
@@ -35,13 +35,9 @@ class OrientatedItemFactory {
 	 */
 	protected static array $emptyBoxStableItemOrientationCache = array();
 
-	public function __construct( Box $box ) {
-		$this->box = $box;
-		$this->logger = new Logger();
-	}
-
-	public function setLogger( Logger $logger ): void {
-		$this->logger = $logger;
+	public function __construct( Box $box, ?LoggerInterface $logger = null ) {
+		$this->box    = $box;
+		$this->logger = $logger ?? new NullLogger();
 	}
 
 	public function setSinglePassMode( bool $singlePassMode ): void {

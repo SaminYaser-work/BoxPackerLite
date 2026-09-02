@@ -47,9 +47,9 @@ class OrientatedItemSorter {
 
 	private PackedItemList $prevPackedItemList;
 
-	private Logger $logger;
+	private LoggerInterface $logger;
 
-	public function __construct( OrientatedItemFactory $factory, bool $singlePassMode, int $widthLeft, int $lengthLeft, int $depthLeft, ItemList $nextItems, int $rowLength, int $x, int $y, int $z, PackedItemList $prevPackedItemList, Logger $logger ) {
+	public function __construct( OrientatedItemFactory $factory, bool $singlePassMode, int $widthLeft, int $lengthLeft, int $depthLeft, ItemList $nextItems, int $rowLength, int $x, int $y, int $z, PackedItemList $prevPackedItemList, ?LoggerInterface $logger = null ) {
 		$this->orientatedItemFactory = $factory;
 		$this->singlePassMode        = $singlePassMode;
 		$this->widthLeft             = $widthLeft;
@@ -61,7 +61,7 @@ class OrientatedItemSorter {
 		$this->y                     = $y;
 		$this->z                     = $z;
 		$this->prevPackedItemList    = $prevPackedItemList;
-		$this->logger                = $logger;
+		$this->logger                = $logger ?? new NullLogger();
 	}
 
 	public function __invoke( OrientatedItem $a, OrientatedItem $b ): int {
@@ -165,14 +165,14 @@ class OrientatedItemSorter {
 
 		if ( ! isset( static::$lookaheadCache[ $cacheKey ] ) ) {
 			$tempBox    = new WorkingVolume( $this->widthLeft - $prevItem->getWidth(), $currentRowLength, $this->depthLeft, PHP_INT_MAX );
-			$tempPacker = new VolumePacker( $tempBox, $itemsToPack );
+			$tempPacker = new VolumePacker( $tempBox, $itemsToPack, $this->logger );
 			$tempPacker->setSinglePassMode( true );
 			$remainingRowPacked = $tempPacker->pack();
 
 			$itemsToPack->removePackedItems( $remainingRowPacked->getItems() );
 
 			$tempBox    = new WorkingVolume( $this->widthLeft, $this->lengthLeft - $currentRowLength, $this->depthLeft, PHP_INT_MAX );
-			$tempPacker = new VolumePacker( $tempBox, $itemsToPack );
+			$tempPacker = new VolumePacker( $tempBox, $itemsToPack, $this->logger );
 			$tempPacker->setSinglePassMode( true );
 			$nextRowsPacked = $tempPacker->pack();
 

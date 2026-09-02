@@ -26,7 +26,7 @@ use function assert;
  */
 class WeightRedistributor {
 
-	private Logger $logger;
+	private LoggerInterface $logger;
 
 	private BoxList $boxes;
 
@@ -37,15 +37,11 @@ class WeightRedistributor {
 
 	private PackedBoxSorter $packedBoxSorter;
 
-	public function __construct( BoxList $boxList, PackedBoxSorter $packedBoxSorter, SplObjectStorage $boxQuantitiesAvailable ) {
+	public function __construct( BoxList $boxList, PackedBoxSorter $packedBoxSorter, SplObjectStorage $boxQuantitiesAvailable, ?LoggerInterface $logger = null ) {
 		$this->boxes                  = $boxList;
 		$this->packedBoxSorter        = $packedBoxSorter;
 		$this->boxQuantitiesAvailable = $boxQuantitiesAvailable;
-		$this->logger                 = new Logger();
-	}
-
-	public function setLogger( Logger $logger ): void {
-		$this->logger = $logger;
+		$this->logger                 = $logger ?? new NullLogger();
 	}
 
 	/**
@@ -150,8 +146,7 @@ class WeightRedistributor {
 	 * @param iterable<Item> $items
 	 */
 	private function doVolumeRepack( iterable $items, Box $currentBox ): PackedBoxList {
-		$packer = new Packer();
-		$packer->setLogger( $this->logger );
+		$packer = new Packer( $this->logger );
 		$packer->setBoxes( $this->boxes ); // use the full set of boxes to allow smaller/larger for full efficiency
 		foreach ( $this->boxes as $box ) {
 			$packer->setBoxQuantity( $box, $this->boxQuantitiesAvailable[ $box ] );

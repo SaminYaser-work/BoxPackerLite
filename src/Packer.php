@@ -20,7 +20,7 @@ use const PHP_INT_MAX;
  */
 class Packer {
 
-	private Logger $logger;
+	private LoggerInterface $logger;
 
 	protected int $maxBoxesToBalanceWeight = 12;
 
@@ -37,16 +37,12 @@ class Packer {
 
 	private bool $beStrictAboutItemOrdering = false;
 
-	public function __construct() {
+	public function __construct( ?LoggerInterface $logger = null ) {
 		$this->items                  = new ItemList();
 		$this->boxes                  = new BoxList();
 		$this->boxQuantitiesAvailable = new SplObjectStorage();
 		$this->packedBoxSorter        = new DefaultPackedBoxSorter();
-		$this->logger                 = new Logger();
-	}
-
-	public function setLogger( Logger $logger ): void {
-		$this->logger = $logger;
+		$this->logger                 = $logger ?? new NullLogger();
 	}
 
 	/**
@@ -131,8 +127,7 @@ class Packer {
 
 		// If we have multiple boxes, try and optimise/even-out weight distribution
 		if ( ! $this->beStrictAboutItemOrdering && $packedBoxes->count() > 1 && $packedBoxes->count() <= $this->maxBoxesToBalanceWeight ) {
-			$redistributor = new WeightRedistributor( $this->boxes, $this->packedBoxSorter, $this->boxQuantitiesAvailable );
-			$redistributor->setLogger( $this->logger );
+			$redistributor = new WeightRedistributor( $this->boxes, $this->packedBoxSorter, $this->boxQuantitiesAvailable, $this->logger );
 			$packedBoxes = $redistributor->redistributeWeight( $packedBoxes );
 		}
 
@@ -153,8 +148,7 @@ class Packer {
 
 			// Loop through boxes starting with smallest, see what happens
 			foreach ( $this->getBoxList( $enforceSingleBox ) as $box ) {
-				$volumePacker = new VolumePacker( $box, $this->items );
-				$volumePacker->setLogger( $this->logger );
+				$volumePacker = new VolumePacker( $box, $this->items, $this->logger );
 				$volumePacker->beStrictAboutItemOrdering( $this->beStrictAboutItemOrdering );
 				$packedBox = $volumePacker->pack();
 				if ( $packedBox->getItems()->count() ) {
